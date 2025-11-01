@@ -89,20 +89,33 @@ const DashboardPage = () => {
             <motion.div key={list.id} variants={item}>
               <Card
                 onClick={() => navigate(`/list/${list.id}`)}
-                className="p-6 hover:border-primary-300 border-2 border-transparent"
+                className={`p-6 hover:border-primary-300 border-2 relative ${
+                  list.all_completed 
+                    ? 'border-green-300 bg-green-50/30' 
+                    : 'border-transparent'
+                }`}
               >
+                {/* All Complete Badge */}
+                {list.all_completed && (
+                  <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
+                    <IoCheckmarkCircle size={14} />
+                    All Done!
+                  </div>
+                )}
+
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-primary-500 to-accent-500 p-2 rounded-lg">
+                    <div className={`p-2 rounded-lg ${
+                      list.all_completed
+                        ? 'bg-gradient-to-br from-green-500 to-green-600'
+                        : 'bg-gradient-to-br from-primary-500 to-accent-500'
+                    }`}>
                       <IoList size={24} className="text-white" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
                       {list.title}
                     </h3>
                   </div>
-                  <button className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">
-                    <IoEllipsisVertical size={20} />
-                  </button>
                 </div>
 
                 {list.description && (
@@ -113,8 +126,10 @@ const DashboardPage = () => {
 
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
-                    <IoCheckmarkCircle size={16} />
-                    <span>0 tasks</span>
+                    <IoCheckmarkCircle size={16} className={list.all_completed ? 'text-green-500' : ''} />
+                    <span className={list.all_completed ? 'text-green-600 font-medium' : ''}>
+                      {list.completed_count}/{list.task_count} {list.task_count === 1 ? 'task' : 'tasks'}
+                    </span>
                   </div>
                   <div className="text-xs">
                     {new Date(list.created_at).toLocaleDateString()}

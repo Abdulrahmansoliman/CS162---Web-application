@@ -71,13 +71,27 @@ class TodoList(db.Model):
     
     def to_dict(self, include_items=False):
         """Convert to dictionary for JSON serialization"""
+        # Count all items in this list (including nested children)
+        from models.todo_item import TodoItem
+        total_items = TodoItem.query.filter_by(list_id=self.id).count()
+        completed_items = TodoItem.query.filter_by(
+            list_id=self.id, 
+            is_completed=True
+        ).count()
+        
+        # Check if all tasks are done
+        all_completed = total_items > 0 and total_items == completed_items
+        
         data = {
             'id': self.id,
             'user_id': self.user_id,
             'title': self.title,
             'description': self.description,
             'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'updated_at': self.updated_at.isoformat(),
+            'task_count': total_items,
+            'completed_count': completed_items,
+            'all_completed': all_completed
         }
         if include_items:
             data['items'] = [

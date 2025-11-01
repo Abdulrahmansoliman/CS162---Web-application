@@ -35,6 +35,9 @@ export interface TodoList {
   description: string | null;
   created_at: string;
   updated_at: string;
+  task_count: number;
+  completed_count: number;
+  all_completed: boolean;
   items?: TodoItem[];
 }
 
