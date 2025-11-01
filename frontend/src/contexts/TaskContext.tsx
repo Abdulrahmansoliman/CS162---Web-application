@@ -213,7 +213,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         await fetchList(currentList.id);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to toggle completion');
+      // Show specific error message from backend
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to toggle completion';
+      toast.error(errorMsg);
       throw error;
     }
   };

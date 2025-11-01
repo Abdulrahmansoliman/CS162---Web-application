@@ -123,6 +123,34 @@ class TodoItem(db.Model):
             descendants.extend(child.get_all_descendants())
         return descendants
 
+    def all_children_completed(self) -> bool:
+        """
+        Check if all direct children are completed.
+        Uses BFS-like approach (checking immediate children only).
+        Returns True if no children or all children are completed.
+        """
+        if not self.children:
+            return True
+        return all(child.is_completed for child in self.children)
+
+    def can_be_completed(self) -> bool:
+        """
+        A task can only be marked as completed if all its children are completed.
+        This enforces bottom-up completion (leaf tasks first).
+        """
+        return self.all_children_completed()
+
+    def uncomplete_parent_chain(self):
+        """
+        When a new subtask is added or a child becomes uncompleted,
+        propagate uncompleted status up the parent chain.
+        """
+        current = self.parent
+        while current is not None:
+            if current.is_completed:
+                current.is_completed = False
+            current = current.parent
+
     def to_dict(self, include_children: bool = False):
         """Serialize to dict for JSON responses."""
         data = {

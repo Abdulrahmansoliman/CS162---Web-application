@@ -37,12 +37,12 @@ const TaskItem = ({ item, level }: TaskItemProps) => {
   const canAddChild = level < 2; // Max 3 levels (0, 1, 2)
 
   const handleToggleComplete = async () => {
-    await toggleComplete(item.id, !item.is_completed);
+    await toggleComplete(item.id, item.is_completed);
   };
 
   const handleToggleCollapse = async () => {
     if (hasChildren) {
-      await toggleCollapsed(item.id, !item.is_collapsed);
+      await toggleCollapsed(item.id, item.is_collapsed);
     }
   };
 

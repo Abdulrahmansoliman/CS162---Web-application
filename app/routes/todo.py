@@ -229,6 +229,14 @@ def create_item():
     )
     
     db.session.add(item)
+    
+    # If adding a child to a completed parent, uncomplete the parent chain
+    if parent_id is not None:
+        parent = TodoItem.query.get(parent_id)
+        if parent and parent.is_completed:
+            parent.is_completed = False
+            parent.uncomplete_parent_chain()
+    
     db.session.commit()
     
     return item.to_dict(), 201
@@ -299,7 +307,20 @@ def update_item(item_id):
         item.description = data['description']
     
     if 'is_completed' in data:
-        item.is_completed = data['is_completed']
+        new_completed_state = data['is_completed']
+        
+        # If trying to mark as completed, check if allowed
+        if new_completed_state and not item.can_be_completed():
+            return {
+                'error': 'Cannot complete task: child tasks must be completed first'
+            }, 400
+        
+        # If marking as uncompleted, propagate up to parents
+        if not new_completed_state and item.is_completed:
+            item.is_completed = False
+            item.uncomplete_parent_chain()
+        else:
+            item.is_completed = new_completed_state
     
     if 'is_collapsed' in data:
         item.is_collapsed = data['is_collapsed']
