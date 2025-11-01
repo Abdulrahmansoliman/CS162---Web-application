@@ -321,6 +321,9 @@ def update_item(item_id):
             item.uncomplete_parent_chain()
         else:
             item.is_completed = new_completed_state
+            # If marking as completed, auto-complete parent chain if possible
+            if new_completed_state:
+                item.auto_complete_parent_chain()
     
     if 'is_collapsed' in data:
         item.is_collapsed = data['is_collapsed']

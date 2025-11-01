@@ -151,6 +151,21 @@ class TodoItem(db.Model):
                 current.is_completed = False
             current = current.parent
 
+    def auto_complete_parent_chain(self):
+        """
+        When a child task is completed, check if all siblings are complete.
+        If yes, automatically complete the parent and cascade up.
+        """
+        current = self.parent
+        while current is not None:
+            # Check if all children of current parent are completed
+            if current.all_children_completed():
+                current.is_completed = True
+                current = current.parent
+            else:
+                # Stop cascading if parent can't be completed
+                break
+
     def to_dict(self, include_children: bool = False):
         """Serialize to dict for JSON responses."""
         data = {
