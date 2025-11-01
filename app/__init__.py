@@ -3,9 +3,10 @@ Flask application factory
 Creates and configures the Flask app instance with blueprints and error handlers
 """
 
-from flask import Flask
+from flask import Flask, send_from_directory
 from models import db
 from config import config
+import os
 
 
 def create_app(config_name='development'):
@@ -39,6 +40,11 @@ def create_app(config_name='development'):
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(todo_bp, url_prefix='/api')
+    
+    # Test page route
+    @app.route('/')
+    def index():
+        return send_from_directory('.', 'test_api.html')
     
     # Error handlers
     @app.errorhandler(404)

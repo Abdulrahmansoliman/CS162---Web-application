@@ -105,7 +105,8 @@ class TodoItem(db.Model):
         backref=db.backref('parent', remote_side=[parent_id]),
         lazy='select',  # Explicit loading for control
         cascade='all, delete-orphan',  # ACID: cascade deletes
-        foreign_keys=[parent_id]
+        foreign_keys=[parent_id],
+        single_parent=True  # Allow delete-orphan on self-referential relationship
     )
     
     # Composite indices for optimal query performance
