@@ -4,6 +4,7 @@ Creates and configures the Flask app instance with blueprints and error handlers
 """
 
 from flask import Flask, send_from_directory
+from flask_cors import CORS
 from models import db
 from config import config
 import os
@@ -26,6 +27,13 @@ def create_app(config_name='development'):
     
     # Load configuration
     app.config.from_object(config[config_name])
+    
+    # Enable CORS for frontend (localhost:3000, localhost:3001)
+    CORS(app, 
+         origins=['http://localhost:3000', 'http://localhost:3001'],
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
     
     # Initialize database
     db.init_app(app)

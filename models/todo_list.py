@@ -9,6 +9,7 @@ ACID Properties:
 """
 
 from datetime import datetime
+from sqlalchemy import and_
 from . import db
 
 
@@ -64,9 +65,8 @@ class TodoList(db.Model):
         backref='list',
         lazy='select',  # Explicit load for control
         cascade='all, delete-orphan',  # ACID: cascading deletes
-        foreign_keys='TodoItem.list_id',
-        primaryjoin='and_(TodoList.id==foreign(TodoItem.list_id), '
-                   'TodoItem.parent_id==None)'
+        primaryjoin='TodoList.id==TodoItem.list_id',
+        viewonly=False
     )
     
     def to_dict(self, include_items=False):

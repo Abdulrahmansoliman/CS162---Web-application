@@ -31,6 +31,9 @@ class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
     SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = None  # Disable SameSite in dev for cross-origin
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_DOMAIN = None  # Allow localhost and 127.0.0.1
 
 
 class ProductionConfig(Config):

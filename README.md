@@ -1,420 +1,838 @@
-# Hierarchical Todo List Web Application
+# Hierarchical Todo List Web Application# Hierarchical Todo List Web Application
 
-A professional-grade web application for managing hierarchical todo lists with user authentication and data isolation. Built with Flask backend and SQLAlchemy ORM using 3NF database normalization.
 
-## Architecture Overview
 
-### Design Patterns
+**CS162 Assignment 2** - Full-stack hierarchical todo list with React frontend and Flask backendA professional-grade web application for managing hierarchical todo lists with user authentication and data isolation. Built with Flask backend and SQLAlchemy ORM using 3NF database normalization.
 
-- **Strategy Pattern**: Authentication system supports multiple authentication strategies (local, OAuth, LDAP, etc.) without code changes
+
+
+## 📹 Demo Video## Architecture Overview
+
+
+
+**[INSERT YOUR LOOM/VIDEO LINK HERE]**### Design Patterns
+
+
+
+*3-minute screen recording demonstrating all features*- **Strategy Pattern**: Authentication system supports multiple authentication strategies (local, OAuth, LDAP, etc.) without code changes
+
 - **Factory Pattern**: Application factory allows creation of different app instances for different environments
-- **Service Layer**: Centralized business logic in services (auth, permissions) for easy testing and reusability
+
+---- **Service Layer**: Centralized business logic in services (auth, permissions) for easy testing and reusability
+
 - **Blueprint Pattern**: Flask blueprints organize routes by domain (auth, todo)
+
+## 🎯 Project Summary
 
 ### Database Design
 
-- **3NF Normalization**: Ensures data integrity and eliminates redundancy
-- **ACID Compliance**: All transactions maintain Atomicity, Consistency, Isolation, Durability
-- **Strategic Indexing**: 10 single + 4 composite indices optimize query performance
-- **Cascading Deletes**: Maintain referential integrity when deleting users, lists, or items
-- **Hierarchical Support**: Self-referential TodoItem with max 3-level depth constraint
+A modern web application for managing hierarchical todo lists where users can:
+
+- Create multiple todo lists- **3NF Normalization**: Ensures data integrity and eliminates redundancy
+
+- Add nested tasks up to 3 levels deep- **ACID Compliance**: All transactions maintain Atomicity, Consistency, Isolation, Durability
+
+- Mark tasks as complete/incomplete- **Strategic Indexing**: 10 single + 4 composite indices optimize query performance
+
+- Collapse/expand task hierarchies- **Cascading Deletes**: Maintain referential integrity when deleting users, lists, or items
+
+- Move tasks between lists- **Hierarchical Support**: Self-referential TodoItem with max 3-level depth constraint
+
+- Securely manage their own data
 
 ### Key Technologies
 
+**Live Demo**: Login at http://localhost:3001 with `john_doe` / `password123`
+
 - **Backend**: Flask 3.0.0 + Flask-SQLAlchemy 3.1.1
-- **Database**: SQLite (easily migrates to PostgreSQL)
+
+---- **Database**: SQLite (easily migrates to PostgreSQL)
+
 - **Authentication**: Session-based with werkzeug password hashing
-- **Configuration**: Environment-based (Development, Production, Testing)
 
-## Project Structure
+## ✅ MVP Requirements Checklist- **Configuration**: Environment-based (Development, Production, Testing)
 
-```
-├── app/
-│   ├── __init__.py           # Application factory
-│   ├── routes/
-│   │   ├── auth.py          # Authentication endpoints
-│   │   └── todo.py          # TodoList & TodoItem endpoints
+
+
+- [x] **Multi-user support** - Each user has isolated task workspace## Project Structure
+
+- [x] **Authentication & Authorization** - Users only see their own tasks
+
+- [x] **Mark tasks complete** - Toggle complete status with visual feedback```
+
+- [x] **Collapse/expand tasks** - Hide/show subtasks to focus on important items├── app/
+
+- [x] **Move tasks** - Relocate top-level tasks between lists│   ├── __init__.py           # Application factory
+
+- [x] **Durable storage** - SQLite database with 3NF normalization│   ├── routes/
+
+- [x] **3-level hierarchy limit** - Items → Sub-items → Sub-sub-items│   │   ├── auth.py          # Authentication endpoints
+
+- [ ] **Screen recording demo** - ADD YOUR LINK ABOVE ⬆️│   │   └── todo.py          # TodoList & TodoItem endpoints
+
 │   └── services/
-│       ├── auth.py          # Authentication service (Strategy pattern)
+
+---│       ├── auth.py          # Authentication service (Strategy pattern)
+
 │       ├── permission.py    # Authorization & access control
-│       └── __init__.py      # Service exports
+
+## 🚀 Quick Start│       └── __init__.py      # Service exports
+
 ├── models/
-│   ├── __init__.py          # SQLAlchemy initialization
+
+### Installation (Flask on Windows)│   ├── __init__.py          # SQLAlchemy initialization
+
 │   ├── user.py              # User model
-│   ├── todo_list.py         # TodoList model
-│   └── todo_item.py         # TodoItem model (hierarchical)
+
+```powershell│   ├── todo_list.py         # TodoList model
+
+# 1. Extract the ZIP file│   └── todo_item.py         # TodoItem model (hierarchical)
+
 ├── config.py                 # Configuration for environments
-├── run.py                    # Application entry point
-├── requirements.txt          # Python dependencies
+
+# 2. Navigate to project directory├── run.py                    # Application entry point
+
+cd "CS162---Web-application"├── requirements.txt          # Python dependencies
+
 ├── DATABASE_SCHEMA.md        # ER diagram and schema docs
-└── README.md                 # This file
-```
+
+# 3. Activate your conda environment  └── README.md                 # This file
+
+conda activate sage```
+
+# (Or create one: conda create -n sage python=3.12)
 
 ## Setup Instructions
 
-### 1. Install Dependencies
+# 4. Install Python dependencies
 
-```bash
-pip install -r requirements.txt
+pip install -r requirements.txt### 1. Install Dependencies
+
+
+
+# 5. Seed database with demo data```bash
+
+python seed.pypip install -r requirements.txt
+
 ```
 
-### 2. Run Application
+# 6. Run Flask backend
+
+python run.py### 2. Run Application
+
+```
 
 **Development Mode** (with auto-reload and debug):
-```bash
-python run.py
-```
 
-**Production Mode**:
-```bash
-set FLASK_ENV=production
-python run.py
-```
+Backend runs at: **http://127.0.0.1:5000**```bash
 
-The server runs on `http://localhost:5000`
+python run.py
+
+### Frontend Setup (React)```
+
+
+
+Open a **new terminal window**:**Production Mode**:
+
+```bash
+
+```powershellset FLASK_ENV=production
+
+# 1. Navigate to frontend folderpython run.py
+
+cd "CS162---Web-application/frontend"```
+
+
+
+# 2. Install dependenciesThe server runs on `http://localhost:5000`
+
+npm install
 
 ### 3. Database
 
-The application automatically creates the SQLite database on first run. Database file is created at the project root as `dev.db`.
+# 3. Run development server
+
+npm run devThe application automatically creates the SQLite database on first run. Database file is created at the project root as `dev.db`.
+
+```
 
 ## API Documentation
 
+Frontend runs at: **http://localhost:3001**
+
 All endpoints return JSON responses. Authentication uses session-based cookies.
+
+### Access the App
 
 ### Authentication Endpoints (`/api/auth`)
 
-#### Register User
-```
-POST /api/auth/register
-Content-Type: application/json
+1. Open browser to **http://localhost:3001**
 
-{
+2. Login with demo account:#### Register User
+
+   - Username: `john_doe````
+
+   - Password: `password123`POST /api/auth/register
+
+3. Explore your todo lists!Content-Type: application/json
+
+
+
+---{
+
     "username": "john_doe",
-    "email": "john@example.com",
+
+## 📁 Project Structure    "email": "john@example.com",
+
     "password": "secure_password"
-}
 
-Response (201):
-{
-    "id": 1,
-    "username": "john_doe",
-    "email": "john@example.com",
-    "created_at": "2024-01-15T10:30:00"
-}
+```}
 
-Error (400):
-{
-    "error": "Username or email already exists"
-}
-```
+CS162---Web-application/
 
-#### Login User
-```
-POST /api/auth/login
-Content-Type: application/json
+├── app/                      # Flask backend applicationResponse (201):
 
-{
-    "username": "john_doe",
-    "password": "secure_password"
-}
+│   ├── routes/              # API endpoints{
 
-Response (200):
-{
-    "id": 1,
-    "username": "john_doe",
+│   │   ├── auth.py         # Login, register, logout    "id": 1,
+
+│   │   └── todo.py         # List/item CRUD operations    "username": "john_doe",
+
+│   └── services/            # Business logic    "email": "john@example.com",
+
+│       ├── auth.py         # Authentication service    "created_at": "2024-01-15T10:30:00"
+
+│       └── permission.py   # Authorization checks}
+
+├── models/                   # Database models (3NF)
+
+│   ├── user.py             # User with password hashingError (400):
+
+│   ├── todo_list.py        # Todo lists{
+
+│   └── todo_item.py        # Hierarchical items (self-referential)    "error": "Username or email already exists"
+
+├── frontend/                 # React TypeScript app}
+
+│   ├── src/```
+
+│   │   ├── components/     # Reusable UI components
+
+│   │   ├── contexts/       # State management (Auth, Tasks)#### Login User
+
+│   │   ├── pages/          # Login, Dashboard, ListPage```
+
+│   │   ├── services/       # API integration layerPOST /api/auth/login
+
+│   │   └── types/          # TypeScript interfacesContent-Type: application/json
+
+│   └── package.json        # Node dependencies
+
+├── instance/{
+
+│   └── app.db              # SQLite database    "username": "john_doe",
+
+├── run.py                   # Flask entry point    "password": "secure_password"
+
+├── seed.py                  # Database seeder script}
+
+├── config.py                # Flask configuration
+
+├── requirements.txt         # Python dependenciesResponse (200):
+
+├── .gitignore               # Git exclusions{
+
+└── README.md                # This file    "id": 1,
+
+```    "username": "john_doe",
+
     "email": "john@example.com"
-}
 
-Error (401):
+---}
+
+
+
+## 🎨 Features & User InterfaceError (401):
+
 {
-    "error": "Invalid credentials"
-}
-```
 
-#### Get Current User
-```
-GET /api/auth/me
+### Beautiful, Modern UI    "error": "Invalid credentials"
 
-Response (200):
-{
-    "id": 1,
-    "username": "john_doe",
-    "email": "john@example.com",
+- **Gradient backgrounds** (blue → purple)}
+
+- **Smooth animations** with Framer Motion```
+
+- **Responsive design** (desktop + mobile)
+
+- **Glassmorphism effects** on cards#### Get Current User
+
+- **Toast notifications** for feedback```
+
+- **Loading spinners** during operationsGET /api/auth/me
+
+
+
+### Dashboard ViewResponse (200):
+
+- Grid of all your todo lists{
+
+- Click any list to view its tasks    "id": 1,
+
+- Create new lists with sidebar button    "username": "john_doe",
+
+- Beautiful empty states with helpful prompts    "email": "john@example.com",
+
     "created_at": "2024-01-15T10:30:00"
+
+### List View (Hierarchical Tasks)}
+
+- **Tree structure** showing parent-child relationships
+
+- **Expand/collapse** - Click arrow to show/hide childrenError (401):
+
+- **Complete tasks** - Click circle icon (turns green ✅){
+
+- **Hover actions** - Edit ✏️, Delete 🗑️, Add subtask ➕    "error": "Not authenticated"
+
+- **Visual depth** - Indentation shows hierarchy level}
+
+- **Max 3 levels** - Items can have sub-items, which can have sub-sub-items```
+
+
+
+### Task Management#### Logout User
+
+- **Add tasks**: Click "Add Task" button```
+
+- **Add subtasks**: Hover over task → click + icon (if not at max depth)POST /api/auth/logout
+
+- **Edit tasks**: Hover → click edit icon → modify title/description
+
+- **Delete tasks**: Hover → click trash → confirms before deleting (cascades to children)Response (200):
+
+- **Mark complete**: Click checkbox (strikethrough + opacity change){
+
+- **Collapse children**: Click arrow to hide subtasks    "message": "Logged out successfully"
+
 }
 
-Error (401):
-{
-    "error": "Not authenticated"
-}
+---```
+
+
+
+## 🗄️ Database Schema### TodoList Endpoints (`/api`)
+
+
+
+### Tables (3NF Normalized)#### Create List
+
 ```
 
-#### Logout User
-```
-POST /api/auth/logout
+**USER**POST /api/lists
 
-Response (200):
-{
-    "message": "Logged out successfully"
-}
-```
+- `id` (PK)Content-Type: application/json
 
-### TodoList Endpoints (`/api`)
+- `username` (UNIQUE INDEX)
 
-#### Create List
-```
-POST /api/lists
-Content-Type: application/json
+- `email` (UNIQUE INDEX){
 
-{
-    "title": "Shopping List",
-    "description": "Weekly groceries"
+- `password_hash`    "title": "Shopping List",
+
+- `created_at`, `updated_at`    "description": "Weekly groceries"
+
 }
 
-Response (201):
-{
-    "id": 1,
-    "title": "Shopping List",
+**TODOLIST**
+
+- `id` (PK)Response (201):
+
+- `user_id` (FK → USER, INDEX){
+
+- `title`, `description`    "id": 1,
+
+- `created_at`, `updated_at`    "title": "Shopping List",
+
     "description": "Weekly groceries",
-    "user_id": 1,
-    "created_at": "2024-01-15T10:30:00",
-    "updated_at": "2024-01-15T10:30:00"
-}
-```
 
-#### Get All User Lists
-```
-GET /api/lists
+**TODOITEM** (Hierarchical)    "user_id": 1,
 
-Response (200):
-[
-    {
-        "id": 1,
+- `id` (PK)    "created_at": "2024-01-15T10:30:00",
+
+- `list_id` (FK → TODOLIST, INDEX)    "updated_at": "2024-01-15T10:30:00"
+
+- `parent_id` (FK → TODOITEM, INDEX) *self-referential*}
+
+- `title`, `description````
+
+- `is_completed` (BOOLEAN, INDEX)
+
+- `is_collapsed` (BOOLEAN, INDEX)#### Get All User Lists
+
+- `order` (INTEGER, INDEX)```
+
+- `created_at`, `updated_at`GET /api/lists
+
+
+
+### RelationshipsResponse (200):
+
+- User → TodoList (1:Many, CASCADE DELETE)[
+
+- TodoList → TodoItem (1:Many, CASCADE DELETE)    {
+
+- TodoItem → TodoItem (1:Many, CASCADE DELETE) *hierarchical*        "id": 1,
+
         "title": "Shopping List",
-        "description": "Weekly groceries",
+
+---        "description": "Weekly groceries",
+
         "user_id": 1,
-        "created_at": "2024-01-15T10:30:00",
+
+## 🔌 API Endpoints        "created_at": "2024-01-15T10:30:00",
+
         "updated_at": "2024-01-15T10:30:00"
-    },
-    ...
-]
-```
+
+### Authentication (`/api/auth`)    },
+
+- `POST /register` - Create new user account    ...
+
+- `POST /login` - User login (creates session)]
+
+- `POST /logout` - User logout```
+
+- `GET /me` - Get current user info
 
 #### Get List with Items
-```
-GET /api/lists/{list_id}
 
-Response (200):
-{
-    "id": 1,
+### Todo Lists (`/api`)```
+
+- `GET /lists` - Get all user's listsGET /api/lists/{list_id}
+
+- `POST /lists` - Create new list
+
+- `GET /lists/<id>` - Get list with items (hierarchical)Response (200):
+
+- `PUT /lists/<id>` - Update list{
+
+- `DELETE /lists/<id>` - Delete list (and all items)    "id": 1,
+
     "title": "Shopping List",
-    "description": "Weekly groceries",
-    "user_id": 1,
-    "created_at": "2024-01-15T10:30:00",
-    "updated_at": "2024-01-15T10:30:00",
-    "items": [
-        {
-            "id": 1,
-            "title": "Milk",
+
+### Todo Items (`/api`)    "description": "Weekly groceries",
+
+- `POST /items` - Create item or subtask    "user_id": 1,
+
+- `GET /items/<id>` - Get item with children    "created_at": "2024-01-15T10:30:00",
+
+- `PUT /items/<id>` - Update item    "updated_at": "2024-01-15T10:30:00",
+
+- `DELETE /items/<id>` - Delete item (and all descendants)    "items": [
+
+- `PATCH /items/<id>/complete` - Toggle complete status        {
+
+- `PATCH /items/<id>/collapse` - Toggle collapse status            "id": 1,
+
+- `PATCH /items/<id>/move` - Move item to different list            "title": "Milk",
+
             "parent_id": null,
-            "is_completed": false,
+
+---            "is_completed": false,
+
             "is_collapsed": false,
-            "order": 0,
+
+## 🔒 Security & Data Isolation            "order": 0,
+
             "depth": 0,
-            "children": []
-        },
-        ...
-    ]
-}
+
+- **Password hashing** using Werkzeug            "children": []
+
+- **Session-based authentication** with secure cookies        },
+
+- **CORS protection** (localhost only)        ...
+
+- **Authorization checks** on every endpoint    ]
+
+- **SQL injection protection** via SQLAlchemy ORM}
+
+- **User data isolation** - Users cannot access others' data```
+
+
+
+---#### Update List
+
 ```
 
-#### Update List
-```
-PUT /api/lists/{list_id}
+## 🛠️ Technology StackPUT /api/lists/{list_id}
+
 Content-Type: application/json
 
-{
-    "title": "Updated Title",
-    "description": "Updated description"
-}
+### Backend
+
+- **Flask 3.0.0** - Web framework{
+
+- **SQLAlchemy 3.1.1** - Database ORM    "title": "Updated Title",
+
+- **Flask-CORS 4.0.0** - Cross-origin requests    "description": "Updated description"
+
+- **SQLite** - Lightweight database}
+
+- **Python 3.12** - Programming language
 
 Response (200):
+
+### Frontend{
+
+- **React 18.2.0** - UI library    "id": 1,
+
+- **TypeScript 5.2.2** - Type-safe JavaScript    "title": "Updated Title",
+
+- **Vite 5.0.8** - Fast build tool    ...
+
+- **Tailwind CSS 3.3.6** - Utility-first CSS}
+
+- **Framer Motion 10.16.16** - Animations```
+
+- **Axios 1.6.2** - HTTP client
+
+- **React Router 6.20.0** - Navigation#### Delete List
+
+```
+
+---DELETE /api/lists/{list_id}
+
+
+
+## 📝 Code DocumentationResponse (200):
+
 {
-    "id": 1,
-    "title": "Updated Title",
-    ...
-}
-```
 
-#### Delete List
-```
-DELETE /api/lists/{list_id}
+### Python Code    "message": "List deleted"
 
-Response (200):
+- **Docstrings** on all classes and functions}
+
+- **Type hints** where appropriate```
+
+- **Inline comments** explaining complex logic
+
+- **Service layer** separates business logic from routes### TodoItem Endpoints (`/api`)
+
+
+
+### TypeScript Code#### Create Item
+
+- **Interface definitions** for all data structures```
+
+- **JSDoc comments** on complex componentsPOST /api/items
+
+- **Type-safe** throughout (no `any` types)Content-Type: application/json
+
+- **Component documentation** in headers
+
 {
-    "message": "List deleted"
-}
-```
 
-### TodoItem Endpoints (`/api`)
+---    "list_id": 1,
 
-#### Create Item
-```
-POST /api/items
-Content-Type: application/json
-
-{
-    "list_id": 1,
     "parent_id": null,
-    "title": "Buy Milk",
+
+## 🧪 Demo Data    "title": "Buy Milk",
+
     "description": "2% milk",
-    "order": 0
+
+Run `python seed.py` to populate the database with:    "order": 0
+
 }
 
-Response (201):
-{
-    "id": 1,
+**3 Demo Users:**
+
+1. `john_doe` / `password123` - 3 lists with hierarchical itemsResponse (201):
+
+2. `jane_smith` / `password123` - 2 lists{
+
+3. `alice_wonder` / `password123` - 1 list    "id": 1,
+
     "list_id": 1,
-    "parent_id": null,
-    "title": "Buy Milk",
-    "description": "2% milk",
-    "is_completed": false,
-    "is_collapsed": false,
-    "order": 0,
-    "depth": 0,
-    "created_at": "2024-01-15T10:30:00",
-    "updated_at": "2024-01-15T10:30:00"
-}
+
+**Sample Hierarchy (john_doe's Shopping List):**    "parent_id": null,
+
+```    "title": "Buy Milk",
+
+Shopping List    "description": "2% milk",
+
+├── Produce    "is_completed": false,
+
+│   ├── Buy 2kg Apples ✅    "is_collapsed": false,
+
+│   │   └── Check if organic available    "order": 0,
+
+│   ├── Buy Bananas    "depth": 0,
+
+│   └── Buy Carrots    "created_at": "2024-01-15T10:30:00",
+
+├── Dairy    "updated_at": "2024-01-15T10:30:00"
+
+│   └── Buy Milk}
+
+└── Snacks```
+
 ```
 
 #### Create Sub-Item (Nested Task)
-```
+
+---```
+
 POST /api/items
-Content-Type: application/json
 
-{
-    "list_id": 1,
-    "parent_id": 1,
-    "title": "Check 2% vs whole milk",
-    "order": 0
+## ⚙️ ConfigurationContent-Type: application/json
+
+
+
+### Environment Variables{
+
+The app supports different configurations:    "list_id": 1,
+
+- **Development** (default) - Debug mode ON    "parent_id": 1,
+
+- **Production** - Debug mode OFF, optimized    "title": "Check 2% vs whole milk",
+
+- **Testing** - In-memory database    "order": 0
+
 }
 
-Response (201):
-{
-    "id": 2,
+### CORS Settings
+
+Frontend origins allowed:Response (201):
+
+- `http://localhost:3000`{
+
+- `http://localhost:3001`    "id": 2,
+
     "list_id": 1,
-    "parent_id": 1,
+
+---    "parent_id": 1,
+
     "title": "Check 2% vs whole milk",
-    "depth": 1,
+
+## 🐛 Troubleshooting    "depth": 1,
+
     ...
+
+### "Network error" on login}
+
+**Solution**: Make sure Flask backend is running on port 5000
+
+```bashError (400) - Max Depth Exceeded:
+
+python run.py{
+
+```    "error": "Maximum nesting depth (3 levels) reached"
+
 }
 
-Error (400) - Max Depth Exceeded:
-{
-    "error": "Maximum nesting depth (3 levels) reached"
-}
-```
+### Frontend won't start```
 
-#### Get Item with Children
+**Solution**: Install dependencies and try different port
+
+```bash#### Get Item with Children
+
+npm install```
+
+npm run devGET /api/items/{item_id}
+
 ```
-GET /api/items/{item_id}
 
 Response (200):
-{
-    "id": 1,
-    "title": "Buy Milk",
-    "parent_id": null,
-    "is_completed": false,
+
+### Database errors{
+
+**Solution**: Reset database with seed script    "id": 1,
+
+```bash    "title": "Buy Milk",
+
+python seed.py    "parent_id": null,
+
+```    "is_completed": false,
+
     "is_collapsed": false,
-    "order": 0,
-    "depth": 0,
+
+### Port already in use    "order": 0,
+
+**Solution**: Vite will automatically try port 3001 if 3000 is busy    "depth": 0,
+
     "children": [
-        {
+
+---        {
+
             "id": 2,
-            "title": "Check 2% vs whole milk",
+
+## 📋 Assignment Compliance            "title": "Check 2% vs whole milk",
+
             "parent_id": 1,
-            "is_completed": false,
-            "depth": 1,
-            "children": []
-        }
-    ],
-    "created_at": "2024-01-15T10:30:00",
-    "updated_at": "2024-01-15T10:30:00"
-}
-```
 
-#### Update Item
-```
-PUT /api/items/{item_id}
-Content-Type: application/json
+### Required Features            "is_completed": false,
 
-{
-    "title": "Updated title",
-    "is_completed": true,
+✅ Multiple users with data isolation              "depth": 1,
+
+✅ Authentication (no forgot password needed)              "children": []
+
+✅ Mark tasks complete/incomplete          }
+
+✅ Collapse/expand subtasks      ],
+
+✅ Move top-level tasks between lists      "created_at": "2024-01-15T10:30:00",
+
+✅ Durable storage (SQLite database)      "updated_at": "2024-01-15T10:30:00"
+
+✅ Max 3-level hierarchy  }
+
+✅ Hide/show subtasks feature  ```
+
+
+
+### Submission Requirements#### Update Item
+
+✅ Zip file with all code  ```
+
+✅ requirements.txt for dependencies  PUT /api/items/{item_id}
+
+✅ README.md with installation instructions  Content-Type: application/json
+
+✅ Works with provided commands  
+
+✅ Virtual environment excluded (.gitignore)  {
+
+✅ Detailed code comments      "title": "Updated title",
+
+⬜ **Screen recording demo** - ADD YOUR LINK!    "is_completed": true,
+
     "is_collapsed": false,
-    "order": 1
+
+---    "order": 1
+
 }
+
+## 🎯 What Makes This Project Special
 
 Response (200):
-{
-    "id": 1,
-    "title": "Updated title",
-    "is_completed": true,
-    ...
-}
+
+1. **Full-Stack TypeScript**: Type safety from database to UI{
+
+2. **Modern UI/UX**: Beautiful animations and responsive design    "id": 1,
+
+3. **3NF Database**: Properly normalized with strategic indexing    "title": "Updated title",
+
+4. **Security First**: Password hashing, CORS, session management    "is_completed": true,
+
+5. **Production-Ready**: Error handling, loading states, validation    ...
+
+6. **Well-Documented**: Comprehensive README, inline comments, docstrings}
+
+7. **Easy Setup**: One-command installation for both backend and frontend```
+
+
+
+---#### Delete Item
+
 ```
 
-#### Delete Item
-```
-DELETE /api/items/{item_id}
+## 🚀 Future EnhancementsDELETE /api/items/{item_id}
 
-Response (200):
-{
-    "message": "Item deleted"
-}
 
-Note: Deleting an item cascades to all descendants
+
+Potential improvements beyond MVP:Response (200):
+
+- [ ] Drag-and-drop task reordering{
+
+- [ ] Task due dates and priorities    "message": "Item deleted"
+
+- [ ] Search and filter functionality}
+
+- [ ] Dark mode toggle
+
+- [ ] Email notificationsNote: Deleting an item cascades to all descendants
+
+- [ ] Export tasks to JSON/CSV```
+
+- [ ] Unit and integration tests
+
+- [ ] Mobile app (React Native)#### Move Item to Different List
+
 ```
 
-#### Move Item to Different List
-```
-PATCH /api/items/{item_id}/move
+---PATCH /api/items/{item_id}/move
+
 Content-Type: application/json
 
+## 👨‍💻 Development Notes
+
 {
-    "target_list_id": 2
-}
+
+### Windows Compatibility    "target_list_id": 2
+
+- Werkzeug reloader disabled by default on Windows (prevents exit code 1 errors)}
+
+- Use `FLASK_USE_RELOADER=1` environment variable to re-enable if needed
 
 Response (200):
-{
-    "id": 1,
-    "list_id": 2,
-    ...
+
+### Database Seeding{
+
+- Safe to run `python seed.py` multiple times    "id": 1,
+
+- Clears existing data before inserting new demo data    "list_id": 2,
+
+- Creates realistic hierarchical structures for testing    ...
+
 }
 
-Error (400):
-{
-    "error": "Can only move top-level items"
+### Frontend-Backend Communication
+
+- Vite dev server proxies `/api/*` requests to Flask backendError (400):
+
+- Session cookies work with `credentials: true` in Axios{
+
+- CORS configured to allow localhost origins    "error": "Can only move top-level items"
+
 }
-```
 
-## Security Features
+---```
 
-- **Session-Based Authentication**: User authentication via Flask sessions
+
+
+## 📄 License## Security Features
+
+
+
+Educational project for CS162 Assignment 2- **Session-Based Authentication**: User authentication via Flask sessions
+
 - **Password Hashing**: werkzeug.security for secure password storage
-- **Permission Checks**: All endpoints verify user ownership of data
+
+---- **Permission Checks**: All endpoints verify user ownership of data
+
 - **Data Isolation**: Users can only access their own lists and items
-- **CSRF Protection**: Session-based tokens prevent CSRF attacks
+
+## 🙏 Acknowledgments- **CSRF Protection**: Session-based tokens prevent CSRF attacks
+
 - **ACID Transactions**: Database transactions ensure consistency
 
-## Authentication Flow
+- Built using Flask, React, TypeScript, and Tailwind CSS
+
+- Animations powered by Framer Motion## Authentication Flow
+
+- Icons from React Icons
 
 1. User registers with unique username and email
-2. Password is hashed with salt using werkzeug
+
+---2. Password is hashed with salt using werkzeug
+
 3. Login verifies credentials and creates session
-4. Session ID stored in cookie
+
+**Last Updated**: November 1, 20254. Session ID stored in cookie
+
 5. Each request verifies user owns the requested resource
-6. Logout destroys session
+
+**Remember to add your screen recording link at the top of this README!** 🎥6. Logout destroys session
+
+
 
 ## Hierarchical Todo Structure
 
