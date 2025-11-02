@@ -12,14 +12,18 @@ import Card from '@/components/common/Card';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Button from '@/components/common/Button';
 import Modal from '@/components/common/Modal';
+import Input from '@/components/common/Input';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const { lists, fetchLists, deleteList, completeAllTasks, isLoading } = useTasks();
+  const { lists, fetchLists, deleteList, completeAllTasks, createList, isLoading } = useTasks();
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedListId, setSelectedListId] = useState<number | null>(null);
+  const [newListTitle, setNewListTitle] = useState('');
+  const [newListDescription, setNewListDescription] = useState('');
 
   useEffect(() => {
     fetchLists();
@@ -63,6 +67,23 @@ const DashboardPage = () => {
       setSelectedListId(null);
     } catch (error) {
       console.error('Failed to complete all tasks:', error);
+    }
+  };
+
+  const handleCreateList = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newListTitle.trim()) return;
+
+    try {
+      await createList({
+        title: newListTitle,
+        description: newListDescription || undefined,
+      });
+      setNewListTitle('');
+      setNewListDescription('');
+      setShowCreateModal(false);
+    } catch (error) {
+      // Error handled by context
     }
   };
 
@@ -137,7 +158,7 @@ const DashboardPage = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">No lists yet</h2>
           <p className="text-gray-600 mb-6">Create your first list to get started!</p>
           <Button
-            onClick={() => {/* Sidebar will handle this */}}
+            onClick={() => setShowCreateModal(true)}
             variant="primary"
             size="large"
             icon={<IoAdd size={20} />}
@@ -336,6 +357,48 @@ const DashboardPage = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Create List Modal */}
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create New List"
+        size="small"
+      >
+        <form onSubmit={handleCreateList} className="space-y-4">
+          <Input
+            label="List Title"
+            placeholder="e.g., Shopping List"
+            value={newListTitle}
+            onChange={(e) => setNewListTitle(e.target.value)}
+            autoFocus
+          />
+          <Input
+            label="Description (optional)"
+            placeholder="What's this list for?"
+            value={newListDescription}
+            onChange={(e) => setNewListDescription(e.target.value)}
+          />
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              fullWidth
+              onClick={() => setShowCreateModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              disabled={!newListTitle.trim()}
+            >
+              Create
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );
