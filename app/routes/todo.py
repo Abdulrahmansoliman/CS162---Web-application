@@ -1,17 +1,44 @@
 """
-Todo list and item routes
-Handles CRUD operations for lists and items with permission checks
+Todo List and Item Routes
+
+ARCHITECTURE OVERVIEW:
+This module demonstrates the LAYERED ARCHITECTURE pattern:
+  - Routes Layer (this file): HTTP request/response handling
+  - Service Layer (todo_service.py): Business logic
+  - Data Layer (models): Database operations
+
+SINGLE RESPONSIBILITY PRINCIPLE (SRP):
+Each route function has ONE job: Handle an HTTP endpoint
+  - Parse request data
+  - Validate authentication/authorization
+  - Delegate to service layer
+  - Format response
+
+ABSTRACTION:
+Routes don't know HOW tasks are created, updated, or deleted.
+They just call service methods and trust the service layer to handle it.
+
+BENEFITS OF THIS ARCHITECTURE:
+1. Testability: Service layer can be unit tested independently
+2. Reusability: Services can be used by other routes or background jobs
+3. Maintainability: Business logic changes don't require route changes
+4. Separation of Concerns: HTTP logic ≠ business logic
 """
 
 from flask import Blueprint, request
-from models import db, TodoList, TodoItem
-from app.services import PermissionService
+from models import TodoList, TodoItem
+from app.services import (
+    PermissionService,
+    TodoListService,
+    TodoItemService
+)
 
 todo_bp = Blueprint('todo', __name__)
 
 
 # ============================================================================
 # TodoList Routes
+# Routes for managing todo lists (create, read, update, delete)
 # ============================================================================
 
 @todo_bp.route('/lists', methods=['POST'])
@@ -39,14 +66,11 @@ def create_list():
     
     user_id = PermissionService.get_current_user_id()
     
-    todo_list = TodoList(
+    todo_list = TodoListService.create_list(
         user_id=user_id,
         title=data['title'],
         description=data.get('description')
     )
-    
-    db.session.add(todo_list)
-    db.session.commit()
     
     return todo_list.to_dict(), 201
 
@@ -122,15 +146,9 @@ def update_list(list_id):
     if todo_list is None:
         return {'error': 'List not found'}, 404
     
-    if 'title' in data:
-        todo_list.title = data['title']
+    updated_list = TodoListService.update_list(todo_list, data)
     
-    if 'description' in data:
-        todo_list.description = data['description']
-    
-    db.session.commit()
-    
-    return todo_list.to_dict(), 200
+    return updated_list.to_dict(), 200
 
 
 @todo_bp.route('/lists/<int:list_id>', methods=['DELETE'])
@@ -153,8 +171,7 @@ def delete_list(list_id):
     if todo_list is None:
         return {'error': 'List not found'}, 404
     
-    db.session.delete(todo_list)
-    db.session.commit()
+    TodoListService.delete_list(todo_list)
     
     return {'message': 'List deleted'}, 200
 
@@ -179,17 +196,7 @@ def complete_all_tasks(list_id):
     if todo_list is None:
         return {'error': 'List not found'}, 404
     
-    # Get all items in the list (including nested)
-    all_items = TodoItem.query.filter_by(list_id=list_id).all()
-    
-    # Mark all as complete
-    count = 0
-    for item in all_items:
-        if not item.is_completed:
-            item.is_completed = True
-            count += 1
-    
-    db.session.commit()
+    count = TodoListService.complete_all_tasks(list_id)
     
     return {
         'message': 'All tasks marked as complete',
@@ -240,40 +247,19 @@ def create_item():
     
     # Validate parent if provided
     parent_id = data.get('parent_id')
+    error = TodoItemService.validate_parent(parent_id, list_id)
+    if error:
+        return {'error': error}, 400
     
-    if parent_id is not None:
-        parent = TodoItem.query.get(parent_id)
-        
-        if parent is None:
-            return {'error': 'Parent item not found'}, 404
-        
-        # Check parent belongs to same list
-        if parent.list_id != list_id:
-            return {'error': 'Parent item not in same list'}, 400
-        
-        # Infinite nesting is now allowed
-        # No depth check needed
-    
-    # Create item
-    item = TodoItem(
+    # Create item using service
+    item = TodoItemService.create_item(
         list_id=list_id,
-        parent_id=parent_id,
         title=title,
+        parent_id=parent_id,
         description=data.get('description'),
         priority=data.get('priority', 'medium'),
         order=data.get('order', 0)
     )
-    
-    db.session.add(item)
-    
-    # If adding a child to a completed parent, uncomplete the parent chain
-    if parent_id is not None:
-        parent = TodoItem.query.get(parent_id)
-        if parent and parent.is_completed:
-            parent.is_completed = False
-            parent.uncomplete_parent_chain()
-    
-    db.session.commit()
     
     return item.to_dict(), 201
 
@@ -335,51 +321,13 @@ def update_item(item_id):
     if item is None:
         return {'error': 'Item not found'}, 404
     
-    # Update fields
-    if 'title' in data:
-        item.title = data['title']
+    # Update using service
+    updated_item, error = TodoItemService.update_item(item, data)
     
-    if 'description' in data:
-        item.description = data['description']
+    if error:
+        return {'error': error}, 400
     
-    if 'is_completed' in data:
-        new_completed_state = data['is_completed']
-        
-        # If trying to mark as completed, check if allowed
-        if new_completed_state and not item.can_be_completed():
-            return {
-                'error': 'Cannot complete task: child tasks must be completed first'
-            }, 400
-        
-        # If marking as uncompleted, propagate up to parents
-        if not new_completed_state and item.is_completed:
-            item.is_completed = False
-            item.uncomplete_parent_chain()
-        else:
-            item.is_completed = new_completed_state
-            # If marking as completed, auto-complete parent chain if possible
-            if new_completed_state:
-                item.auto_complete_parent_chain()
-    
-    if 'is_collapsed' in data:
-        item.is_collapsed = data['is_collapsed']
-    
-    if 'order' in data:
-        item.order = data['order']
-    
-    if 'priority' in data:
-        # Validate priority value
-        valid_priorities = ['low', 'medium', 'high', 'urgent']
-        if data['priority'] in valid_priorities:
-            item.priority = data['priority']
-        else:
-            return {
-                'error': f'Invalid priority. Must be one of: {", ".join(valid_priorities)}'
-            }, 400
-    
-    db.session.commit()
-    
-    return item.to_dict(), 200
+    return updated_item.to_dict(), 200
 
 
 @todo_bp.route('/items/<int:item_id>', methods=['DELETE'])
@@ -402,8 +350,7 @@ def delete_item(item_id):
     if item is None:
         return {'error': 'Item not found'}, 404
     
-    db.session.delete(item)
-    db.session.commit()
+    TodoItemService.delete_item(item)
     
     return {'message': 'Item deleted'}, 200
 
@@ -440,19 +387,16 @@ def move_item(item_id):
     if item is None:
         return {'error': 'Item not found'}, 404
     
-    # Only allow moving top-level items
-    if item.parent_id is not None:
-        return {'error': 'Can only move top-level items'}, 400
-    
     target_list_id = data['target_list_id']
     
     # Verify user owns target list
     if not PermissionService.owns_list(target_list_id):
         return {'error': 'Target list not found or unauthorized'}, 404
     
-    # Move item
-    item.list_id = target_list_id
-    db.session.commit()
+    # Move item using service
+    error = TodoItemService.move_to_list(item, target_list_id)
+    if error:
+        return {'error': error}, 400
     
     return item.to_dict(), 200
 
@@ -461,7 +405,6 @@ def move_item(item_id):
 def move_item_to_parent(item_id):
     """
     Move a todo item to a new parent (or to root level).
-    Simplified approach - just changes the parent, order is auto-managed.
     
     Expected JSON:
         {
@@ -490,55 +433,9 @@ def move_item_to_parent(item_id):
     
     new_parent_id = data.get('new_parent_id')
     
-    # Validate new parent exists and belongs to same list
-    if new_parent_id is not None:
-        new_parent = TodoItem.query.get(new_parent_id)
-        if new_parent is None:
-            return {'error': 'Parent item not found'}, 404
-        if new_parent.list_id != item.list_id:
-            return {'error': 'Cannot move to different list'}, 400
-        # Prevent moving item to be its own descendant
-        if new_parent.id == item.id or item.is_ancestor_of(new_parent):
-            return {'error': 'Cannot move to descendant'}, 400
-    
-    # Update parent
-    old_parent_id = item.parent_id
-    
-    # Only proceed if parent actually changed
-    if old_parent_id != new_parent_id:
-        item.parent_id = new_parent_id
-        
-        # Set order to end of new parent's children
-        if new_parent_id is None:
-            # Moving to root - count root items
-            max_order = db.session.query(
-                db.func.max(TodoItem.order)
-            ).filter(
-                TodoItem.list_id == item.list_id,
-                TodoItem.parent_id.is_(None)
-            ).scalar() or 0
-            item.order = max_order + 1
-        else:
-            # Moving under a parent - count that parent's children
-            max_order = db.session.query(
-                db.func.max(TodoItem.order)
-            ).filter(
-                TodoItem.parent_id == new_parent_id
-            ).scalar() or 0
-            item.order = max_order + 1
-        
-        # If parent changed, uncomplete the old parent chain
-        if old_parent_id is not None:
-            old_parent = TodoItem.query.get(old_parent_id)
-            if old_parent and old_parent.is_completed:
-                old_parent.uncomplete_parent_chain()
-        
-        # If moved to a completed parent, uncomplete the new parent chain
-        if new_parent_id is not None:
-            new_parent = TodoItem.query.get(new_parent_id)
-            if new_parent and new_parent.is_completed:
-                new_parent.uncomplete_parent_chain()
-        
-        db.session.commit()
+    # Move item using service
+    error = TodoItemService.move_to_parent(item, new_parent_id)
+    if error:
+        return {'error': error}, 400
     
     return item.to_dict(), 200

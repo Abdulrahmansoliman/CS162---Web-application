@@ -1,11 +1,29 @@
 """
 TodoItem Model - 3NF Normalized with Hierarchical Support
-Supports recursive task hierarchy with optimized indices
-ACID Properties:
-  - Atomicity: Single item transaction
-  - Consistency: Referential integrity with cascades
-  - Isolation: User-based isolation (via list_id)
-  - Durability: Persisted in database
+
+OBJECT-ORIENTED PRINCIPLES DEMONSTRATED:
+
+1. ENCAPSULATION:
+   - All data (title, description, is_completed, etc.) is encapsulated within the class
+   - Access to data is controlled through methods (to_dict, get_depth, etc.)
+   - Internal state is protected from direct manipulation
+
+2. ABSTRACTION:
+   - Complex hierarchical operations (get_depth, is_ancestor_of) are abstracted
+     into simple method calls
+   - Users of this class don't need to understand the recursive algorithms
+
+3. SINGLE RESPONSIBILITY PRINCIPLE (SRP):
+   - This class has ONE responsibility: Represent a todo item with hierarchy
+   - Database operations delegated to SQLAlchemy
+   - Validation delegated to service layer
+   - API logic delegated to routes
+
+4. ACID Properties:
+   - Atomicity: Single item transaction
+   - Consistency: Referential integrity with cascades
+   - Isolation: User-based isolation (via list_id)
+   - Durability: Persisted in database
 """
 
 from datetime import datetime
@@ -21,6 +39,11 @@ class TodoItem(db.Model):
     - Atomic values only (1NF)
     - Non-key attributes depend on primary key (2NF)
     - No transitive dependencies (3NF)
+    
+    DESIGN PATTERN: Active Record
+    - Combines data and behavior in one class
+    - Each instance represents a database row
+    - Methods operate on that row's data
     """
 
     __tablename__ = 'todo_items'
