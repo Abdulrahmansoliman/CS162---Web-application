@@ -50,6 +50,14 @@ class TodoItem(db.Model):
     is_completed = db.Column(db.Boolean, default=False, nullable=False, index=True)
     is_collapsed = db.Column(db.Boolean, default=False, nullable=False, index=True)
 
+    # Priority: low, medium, high, urgent
+    priority = db.Column(
+        db.String(20),
+        default='medium',
+        nullable=False,
+        index=True
+    )
+
     # Ordering (map to existing DB column 'order')
     order = db.Column(
         'order',
@@ -108,9 +116,10 @@ class TodoItem(db.Model):
 
     def can_add_child(self) -> bool:
         """
-        MVP constraint: allow max 3 levels total -> depth < 2 can add a child.
+        Allow infinite nesting - always return True.
+        Frontend will handle visual representation.
         """
-        return self.get_depth() < 2
+        return True
 
     def get_all_descendants(self):
         """
@@ -122,6 +131,18 @@ class TodoItem(db.Model):
             descendants.append(child)
             descendants.extend(child.get_all_descendants())
         return descendants
+
+    def is_ancestor_of(self, other_item) -> bool:
+        """
+        Check if this item is an ancestor of another item.
+        Used to prevent circular references when moving items.
+        """
+        current = other_item.parent
+        while current is not None:
+            if current.id == self.id:
+                return True
+            current = current.parent
+        return False
 
     def all_children_completed(self) -> bool:
         """
@@ -176,6 +197,7 @@ class TodoItem(db.Model):
             'description': self.description,
             'is_completed': self.is_completed,
             'is_collapsed': self.is_collapsed,
+            'priority': self.priority,
             'order': self.order,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

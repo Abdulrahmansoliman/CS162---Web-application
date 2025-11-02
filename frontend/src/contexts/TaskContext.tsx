@@ -27,6 +27,7 @@ interface TaskContextType {
   createList: (data: CreateListData) => Promise<TodoList>;
   updateList: (listId: number, data: UpdateListData) => Promise<void>;
   deleteList: (listId: number) => Promise<void>;
+  completeAllTasks: (listId: number) => Promise<void>;
   setCurrentList: (list: TodoList | null) => void;
   
   // Item operations
@@ -35,6 +36,8 @@ interface TaskContextType {
   deleteItem: (itemId: number) => Promise<void>;
   toggleComplete: (itemId: number, currentStatus: boolean) => Promise<void>;
   toggleCollapsed: (itemId: number, currentStatus: boolean) => Promise<void>;
+  moveToParent: (itemId: number, newParentId: number | null) => Promise<void>;
+  moveItemToList: (itemId: number, targetListId: number) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -138,6 +141,26 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     }
   };
 
+  const completeAllTasks = async (listId: number) => {
+    try {
+      setIsLoading(true);
+      await taskService.completeAllTasks(listId);
+      
+      // Refresh the list to get updated counts and completion status
+      await fetchList(listId);
+      
+      // Also refresh the lists array to update dashboard
+      await fetchLists();
+      
+      toast.success('All tasks marked as complete!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to complete all tasks');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const setCurrentList = (list: TodoList | null) => {
     setCurrentListState(list);
   };
@@ -234,6 +257,39 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     }
   };
 
+  const moveToParent = async (itemId: number, newParentId: number | null) => {
+    try {
+      await taskService.moveToParent(itemId, newParentId);
+      
+      // Refresh current list to show new hierarchy
+      if (currentList) {
+        await fetchList(currentList.id);
+      }
+      toast.success('Task moved successfully');
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to move task';
+      toast.error(errorMsg);
+      throw error;
+    }
+  };
+
+  const moveItemToList = async (itemId: number, targetListId: number) => {
+    try {
+      await taskService.moveItem(itemId, { target_list_id: targetListId });
+      
+      // Refresh both lists and current list
+      await fetchLists();
+      if (currentList) {
+        await fetchList(currentList.id);
+      }
+      toast.success('Task moved to new list');
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to move task to list';
+      toast.error(errorMsg);
+      throw error;
+    }
+  };
+
   const value: TaskContextType = {
     lists,
     currentList,
@@ -243,12 +299,15 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     createList,
     updateList,
     deleteList,
+    completeAllTasks,
     setCurrentList,
     createItem,
     updateItem,
     deleteItem,
     toggleComplete,
     toggleCollapsed,
+    moveToParent,
+    moveItemToList,
   };
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

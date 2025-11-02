@@ -58,6 +58,13 @@ export const taskService = {
     await apiClient.delete(`/lists/${listId}`);
   },
 
+  /**
+   * Mark all tasks in a list as complete
+   */
+  async completeAllTasks(listId: number): Promise<void> {
+    await apiClient.patch(`/lists/${listId}/complete-all`);
+  },
+
   // ============================================================================
   // TodoItem Operations
   // ============================================================================
@@ -98,6 +105,16 @@ export const taskService = {
    */
   async moveItem(itemId: number, data: MoveItemData): Promise<TodoItem> {
     const response = await apiClient.patch<TodoItem>(`/items/${itemId}/move`, data);
+    return response.data;
+  },
+
+  /**
+   * Move an item to a new parent (or to root level)
+   */
+  async moveToParent(itemId: number, newParentId: number | null): Promise<TodoItem> {
+    const response = await apiClient.patch<TodoItem>(`/items/${itemId}/move-to-parent`, {
+      new_parent_id: newParentId,
+    });
     return response.data;
   },
 

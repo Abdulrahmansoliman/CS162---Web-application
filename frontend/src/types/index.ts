@@ -60,6 +60,7 @@ export interface TodoItem {
   description: string | null;
   is_completed: boolean;
   is_collapsed: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   order: number;
   created_at: string;
   updated_at: string;
@@ -71,6 +72,7 @@ export interface CreateItemData {
   parent_id?: number | null;
   title: string;
   description?: string;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
   order?: number;
 }
 
@@ -79,11 +81,12 @@ export interface UpdateItemData {
   description?: string;
   is_completed?: boolean;
   is_collapsed?: boolean;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
   order?: number;
 }
 
 export interface MoveItemData {
-  new_list_id: number;
+  target_list_id: number;
 }
 
 // API Response types

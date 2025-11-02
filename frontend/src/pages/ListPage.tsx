@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IoArrowBack, IoAdd, IoTrash } from 'react-icons/io5';
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { useTasks } from '@/contexts/TaskContext';
 import TaskItem from '@/components/tasks/TaskItem';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -17,10 +18,11 @@ import Input from '@/components/common/Input';
 const ListPage = () => {
   const { listId } = useParams<{ listId: string }>();
   const navigate = useNavigate();
-  const { currentList, fetchList, createItem, deleteList, isLoading } = useTasks();
+  const { currentList, fetchList, createItem, deleteList, moveToParent, isLoading } = useTasks();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
+  const [newItemPriority, setNewItemPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
 
   useEffect(() => {
     if (listId) {
@@ -37,9 +39,11 @@ const ListPage = () => {
         list_id: Number(listId),
         title: newItemTitle,
         description: newItemDescription || undefined,
+        priority: newItemPriority,
       });
       setNewItemTitle('');
       setNewItemDescription('');
+      setNewItemPriority('medium');
       setShowAddModal(false);
     } catch (error) {
       // Error handled by context
@@ -55,6 +59,28 @@ const ListPage = () => {
       navigate('/dashboard');
     } catch (error) {
       // Error handled by context
+    }
+  };
+
+  const handleDragEnd = async (result: DropResult) => {
+    const { draggableId, destination } = result;
+
+    // Dropped outside valid area
+    if (!destination) return;
+
+    const itemId = parseInt(draggableId.replace('task-', ''));
+    
+    // Determine the new parent based on where it was dropped
+    let newParentId: number | null = null;
+    if (destination.droppableId !== 'root') {
+      newParentId = parseInt(destination.droppableId.replace('parent-', ''));
+    }
+
+    try {
+      // Move the item to its new parent
+      await moveToParent(itemId, newParentId);
+    } catch (error) {
+      // Error already handled by context with toast
     }
   };
 
@@ -150,11 +176,22 @@ const ListPage = () => {
               </Button>
             </motion.div>
           ) : (
-            <div className="space-y-2">
-              {currentList.items.map((item) => (
-                <TaskItem key={item.id} item={item} level={0} />
-              ))}
-            </div>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="root" type="task">
+                {(provided) => (
+                  <div 
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-2"
+                  >
+                    {currentList.items?.map((item, index) => (
+                      <TaskItem key={item.id} item={item} level={0} index={index} />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           )}
         </div>
       </div>
@@ -185,6 +222,57 @@ const ListPage = () => {
               value={newItemDescription}
               onChange={(e) => setNewItemDescription(e.target.value)}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Priority
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => setNewItemPriority('low')}
+                className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${
+                  newItemPriority === 'low'
+                    ? 'border-gray-400 bg-gray-100 text-gray-700 font-semibold'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                ⬇️ Low
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewItemPriority('medium')}
+                className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${
+                  newItemPriority === 'medium'
+                    ? 'border-blue-400 bg-blue-100 text-blue-700 font-semibold'
+                    : 'border-gray-200 hover:border-blue-300'
+                }`}
+              >
+                ➡️ Medium
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewItemPriority('high')}
+                className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${
+                  newItemPriority === 'high'
+                    ? 'border-orange-400 bg-orange-100 text-orange-700 font-semibold'
+                    : 'border-gray-200 hover:border-orange-300'
+                }`}
+              >
+                ⬆️ High
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewItemPriority('urgent')}
+                className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${
+                  newItemPriority === 'urgent'
+                    ? 'border-red-400 bg-red-100 text-red-700 font-semibold'
+                    : 'border-gray-200 hover:border-red-300'
+                }`}
+              >
+                🔥 Urgent
+              </button>
+            </div>
           </div>
           <div className="flex gap-3">
             <Button
