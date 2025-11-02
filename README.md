@@ -6,15 +6,17 @@
 
 
 
-## 📹 Demo Video## Architecture Overview
+## 📹 Demo Video
 
+**[Watch the Full Demo (5 minutes)](https://www.loom.com/share/076eeca7f49a4d449bdb9fdfde6431a4)**
 
+*Screen recording demonstrating all features including authentication, hierarchical tasks, collapsing, moving items, and database structure*
 
-**[INSERT YOUR LOOM/VIDEO LINK HERE]**### Design Patterns
+## Architecture Overview
 
+### Design Patterns
 
-
-*3-minute screen recording demonstrating all features*- **Strategy Pattern**: Authentication system supports multiple authentication strategies (local, OAuth, LDAP, etc.) without code changes
+- **Strategy Pattern**: Authentication system supports multiple authentication strategies (local, OAuth, LDAP, etc.) without code changes
 
 - **Factory Pattern**: Application factory allows creation of different app instances for different environments
 
