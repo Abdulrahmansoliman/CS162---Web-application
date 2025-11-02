@@ -35,6 +35,7 @@ erDiagram
         int parent_id FK "INDEX - recursive queries"
         string title
         string description
+        string priority "DEFAULT: 'medium' - low|medium|high|urgent - INDEX"
         boolean is_completed "INDEX - filter tasks"
         boolean is_collapsed "INDEX - UI rendering"
         int order "INDEX - sorting"
