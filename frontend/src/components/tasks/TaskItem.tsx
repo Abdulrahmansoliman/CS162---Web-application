@@ -15,6 +15,7 @@ import {
   IoCreate,
   IoReorderThree,
   IoSwapHorizontal,
+  IoArrowDown,
 } from 'react-icons/io5';
 import { useTasks } from '@/contexts/TaskContext';
 import { TodoItem } from '@/types';
@@ -29,10 +30,11 @@ interface TaskItemProps {
 }
 
 const TaskItem = ({ item, level, index }: TaskItemProps) => {
-  const { lists, toggleComplete, toggleCollapsed, createItem, updateItem, deleteItem, moveItemToList } = useTasks();
+  const { lists, toggleComplete, toggleCollapsed, createItem, updateItem, deleteItem, moveItemToList, moveToParent, currentList } = useTasks();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showMoveToParentModal, setShowMoveToParentModal] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [newItemPriority, setNewItemPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
@@ -40,6 +42,7 @@ const TaskItem = ({ item, level, index }: TaskItemProps) => {
   const [editDescription, setEditDescription] = useState(item.description || '');
   const [editPriority, setEditPriority] = useState(item.priority);
   const [selectedListId, setSelectedListId] = useState<number | null>(null);
+  const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
 
   const hasChildren = item.children && item.children.length > 0;
   // Allow infinite nesting - always show add button
@@ -105,6 +108,18 @@ const TaskItem = ({ item, level, index }: TaskItemProps) => {
       await moveItemToList(item.id, selectedListId);
       setShowMoveModal(false);
       setSelectedListId(null);
+    } catch (error) {
+      // Error handled by context
+    }
+  };
+
+  const handleMoveToParent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // selectedParentId can be null (moves to root level)
+      await moveToParent(item.id, selectedParentId);
+      setShowMoveToParentModal(false);
+      setSelectedParentId(null);
     } catch (error) {
       // Error handled by context
     }
@@ -283,6 +298,12 @@ const TaskItem = ({ item, level, index }: TaskItemProps) => {
                 icon={<IoSwapHorizontal size={18} />}
               />
             )}
+            <Button
+              onClick={() => setShowMoveToParentModal(true)}
+              variant="ghost"
+              size="small"
+              icon={<IoArrowDown size={18} />}
+            />
             <Button
               onClick={() => {
                 setEditTitle(item.title);
@@ -600,6 +621,80 @@ const TaskItem = ({ item, level, index }: TaskItemProps) => {
               variant="primary"
               fullWidth
               disabled={selectedListId === null}
+            >
+              Move Task
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Move to Parent Modal - Move task to be a subtask of another task */}
+      <Modal
+        isOpen={showMoveToParentModal}
+        onClose={() => {
+          setShowMoveToParentModal(false);
+          setSelectedParentId(null);
+        }}
+        title="Move Task to Another Task"
+        size="medium"
+      >
+        <form onSubmit={handleMoveToParent} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select target parent task
+            </label>
+            <p className="text-sm text-gray-600 mb-3">
+              Move "{item.title}" to be a subtask of another task, or select "Root Level" to move it to the top level.
+            </p>
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              value={selectedParentId ?? ''}
+              onChange={(e) => setSelectedParentId(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">-- Root Level (No Parent) --</option>
+              {currentList && currentList.items ? (
+                (() => {
+                  // Helper function to flatten all tasks recursively
+                  const flattenTasks = (tasks: TodoItem[], prefix = ''): JSX.Element[] => {
+                    return tasks.flatMap(task => {
+                      // Don't allow task to be its own parent
+                      if (task.id === item.id) return [];
+                      
+                      const option = (
+                        <option key={task.id} value={task.id}>
+                          {prefix}{task.title}
+                        </option>
+                      );
+                      
+                      // Add children recursively
+                      if (task.children && task.children.length > 0) {
+                        return [option, ...flattenTasks(task.children, prefix + '  └─ ')];
+                      }
+                      return [option];
+                    });
+                  };
+                  
+                  return flattenTasks(currentList.items);
+                })()
+              ) : null}
+            </select>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              fullWidth
+              onClick={() => {
+                setShowMoveToParentModal(false);
+                setSelectedParentId(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
             >
               Move Task
             </Button>
