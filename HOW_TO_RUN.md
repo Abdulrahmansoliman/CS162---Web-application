@@ -58,7 +58,7 @@ python3 -m venv venv
 Activate it:
 
 ```powershell
-venv\Scripts\activate.bat
+venv\bin\Activate.ps1
 ```
 
 **Expected output:**
