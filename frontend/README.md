@@ -114,7 +114,7 @@ Make sure the backend server is running before starting the frontend!
 1. **Start the backend server:**
    ```powershell
    cd "c:\Users\20112\Downloads\cs162 assignment 2\CS162---Web-application"
-   C:\Users\20112\anaconda3\envs\sage\python.exe run.py
+   python3 app.py
    ```
 
 2. **Start the frontend:**

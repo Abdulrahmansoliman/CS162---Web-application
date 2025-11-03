@@ -1,6 +1,7 @@
 """
-Application entry point
-Runs the Flask development server
+Application entry point (Assignment requirement: python3 app.py)
+This file is required by the assignment specifications.
+Runs the Flask development server.
 """
 
 import os

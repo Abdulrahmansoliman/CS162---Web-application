@@ -401,7 +401,7 @@ def seed_database():
         print(f"   3. bob_wilson / password789")
         
         print(f"\n🚀 Next steps:")
-        print(f"   1. Run: python run.py")
+        print(f"   1. Run: python app.py")
         print(f"   2. Open: http://localhost:5000")
         print(f"   3. Login with any test account above")
 

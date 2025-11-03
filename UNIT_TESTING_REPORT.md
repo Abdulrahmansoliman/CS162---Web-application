@@ -170,7 +170,7 @@ start htmlcov/index.html
 **Backend Server** (for running the app):
 ```powershell
 cd "c:\Users\20112\Downloads\cs162 assignment 2\CS162---Web-application"
-.\.venv\bin\python.exe run.py
+python3 app.py
 ```
 
 ---

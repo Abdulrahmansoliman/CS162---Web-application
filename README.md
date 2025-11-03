@@ -72,81 +72,101 @@ A modern web application for managing hierarchical todo lists where users can:
 
 - [ ] **Screen recording demo** - ADD YOUR LINK ABOVE ⬆️│   │   └── todo.py          # TodoList & TodoItem endpoints
 
+
+---
+
+## 🚀 Quick Start
+
+### Installation (Assignment Requirements)
+
+**Flask on Windows:**
+
+```powershell
+# 1. Extract the ZIP file
+
+# 2. Navigate to project directory
+cd "CS162---Web-application"
+
+# 3. Create virtual environment
+python3 -m venv venv
+
+# 4. Activate virtual environment
+venv\Scripts\activate.bat
+
+# 5. Install Python dependencies
+pip3 install -r requirements.txt
+
+# 6. Seed database with demo data (one-time setup)
+python3 seed.py
+
+# 7. Run Flask backend
+python3 app.py
+```
+
+Backend runs at: **http://127.0.0.1:5000**
+
+---
+
+### Frontend Setup (React)
+
+Open a **new terminal window**:
+
+```powershell
+# 1. Navigate to frontend folder
+cd "CS162---Web-application/frontend"
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development server
+npm start
+```
+
+Frontend runs at: **http://localhost:5173** (or next available port)
+
+---
+
+### Login Credentials
+
+| Username | Password | Description |
+|----------|----------|-------------|
+| `john_doe` | `password123` | User with shopping & work lists |
+| `jane_smith` | `password456` | User with study & fitness lists |
+| `bob_wilson` | `password789` | User with home & travel lists |
+
+---
+
+## 📂 Project Structure
+
+```
+CS162---Web-application/
+├── app/
+│   ├── __init__.py           # Application factory
+│   ├── routes/
+│   │   ├── auth.py          # Authentication endpoints
+│   │   └── todo.py          # TodoList & TodoItem endpoints
 │   └── services/
-
----│       ├── auth.py          # Authentication service (Strategy pattern)
-
+│       ├── auth.py          # Authentication service (Strategy pattern)
 │       ├── permission.py    # Authorization & access control
-
-## 🚀 Quick Start│       └── __init__.py      # Service exports
-
+│       └── __init__.py      # Service exports
 ├── models/
-
-### Installation (Flask on Windows)│   ├── __init__.py          # SQLAlchemy initialization
-
+│   ├── __init__.py          # SQLAlchemy initialization
 │   ├── user.py              # User model
-
-```powershell│   ├── todo_list.py         # TodoList model
-
-# 1. Extract the ZIP file│   └── todo_item.py         # TodoItem model (hierarchical)
-
+│   ├── todo_list.py         # TodoList model
+│   └── todo_item.py         # TodoItem model (hierarchical)
+├── frontend/                 # React + TypeScript application
+│   ├── src/                 # React components
+│   ├── package.json         # Node.js dependencies
+│   └── vite.config.ts       # Vite configuration
+├── tests/                    # 77 unit tests (74% coverage)
+├── instance/                 # SQLite database location
+├── app.py                    # Backend entry point ⭐ (REQUIRED)
+├── seed.py                   # Database seeder
 ├── config.py                 # Configuration for environments
-
-# 2. Navigate to project directory├── run.py                    # Application entry point
-
-cd "CS162---Web-application"├── requirements.txt          # Python dependencies
-
+├── requirements.txt          # Python dependencies
 ├── DATABASE_SCHEMA.md        # ER diagram and schema docs
-
-# 3. Activate your conda environment  └── README.md                 # This file
-
-conda activate sage```
-
-# (Or create one: conda create -n sage python=3.12)
-
-## Setup Instructions
-
-# 4. Install Python dependencies
-
-pip install -r requirements.txt### 1. Install Dependencies
-
-
-
-# 5. Seed database with demo data```bash
-
-python seed.pypip install -r requirements.txt
-
+└── README.md                 # This file
 ```
-
-# 6. Run Flask backend
-
-python run.py### 2. Run Application
-
-```
-
-**Development Mode** (with auto-reload and debug):
-
-Backend runs at: **http://127.0.0.1:5000**```bash
-
-python run.py
-
-### Frontend Setup (React)```
-
-
-
-Open a **new terminal window**:**Production Mode**:
-
-```bash
-
-```powershellset FLASK_ENV=production
-
-# 1. Navigate to frontend folderpython run.py
-
-cd "CS162---Web-application/frontend"```
-
-
-
-# 2. Install dependenciesThe server runs on `http://localhost:5000`
 
 ---
 
@@ -332,27 +352,17 @@ CS162---Web-application/
 
 │   │   ├── pages/          # Login, Dashboard, ListPage```
 
-│   │   ├── services/       # API integration layerPOST /api/auth/login
-
-│   │   └── types/          # TypeScript interfacesContent-Type: application/json
-
+│   │   ├── services/       # API integration layer
+│   │   └── types/          # TypeScript interfaces
 │   └── package.json        # Node dependencies
-
-├── instance/{
-
-│   └── app.db              # SQLite database    "username": "john_doe",
-
-├── run.py                   # Flask entry point    "password": "secure_password"
-
-├── seed.py                  # Database seeder script}
-
+├── instance/
+│   └── app.db              # SQLite database
+├── app.py                   # Backend entry point ⭐ (REQUIRED)
+├── seed.py                  # Database seeder script
 ├── config.py                # Flask configuration
-
-├── requirements.txt         # Python dependenciesResponse (200):
-
-├── .gitignore               # Git exclusions{
-
-└── README.md                # This file    "id": 1,
+├── requirements.txt         # Python dependencies
+├── .gitignore               # Git exclusions
+└── README.md                # This file
 
 ```    "username": "john_doe",
 
@@ -730,9 +740,9 @@ Frontend origins allowed:Response (201):
 
 **Solution**: Make sure Flask backend is running on port 5000
 
-```bashError (400) - Max Depth Exceeded:
-
-python run.py{
+```bash
+python app.py
+```
 
 ```    "error": "Maximum nesting depth (3 levels) reached"
 
